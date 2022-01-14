@@ -1,4 +1,4 @@
-package com.yunxian.android.scrolllinearlayout;
+package com.yunxian.android.view.scrolllinearlayout;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

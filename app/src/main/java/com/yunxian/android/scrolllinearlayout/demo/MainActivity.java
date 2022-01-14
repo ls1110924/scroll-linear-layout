@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.yunxian.android.scrolllinearlayout.ScrollLinearLayout;
+import com.yunxian.android.view.scrolllinearlayout.ScrollLinearLayout;
 
 public class MainActivity extends AppCompatActivity {
 

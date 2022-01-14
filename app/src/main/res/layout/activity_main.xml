@@ -8,7 +8,7 @@
     android:padding="8dp"
     tools:context=".MainActivity">
 
-    <com.yunxian.android.scrolllinearlayout.ScrollLinearLayout
+    <com.yunxian.android.view.scrolllinearlayout.ScrollLinearLayout
         android:id="@+id/scroll1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -16,7 +16,7 @@
         android:orientation="horizontal"
         app:scrollable="true" />
 
-    <com.yunxian.android.scrolllinearlayout.ScrollLinearLayout
+    <com.yunxian.android.view.scrolllinearlayout.ScrollLinearLayout
         android:id="@+id/scroll2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
