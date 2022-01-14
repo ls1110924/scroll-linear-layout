@@ -24,6 +24,7 @@ import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AnimationUtils;
 import android.widget.EdgeEffect;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.OverScroller;
 import android.widget.ScrollView;
@@ -33,15 +34,16 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.InputDeviceCompat;
-import androidx.core.view.NestedScrollingChild2;
+import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingChildHelper;
-import androidx.core.view.NestedScrollingParent;
+import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.NestedScrollingParentHelper;
 import androidx.core.view.ScrollingView;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityRecordCompat;
 import androidx.core.widget.EdgeEffectCompat;
+import androidx.core.widget.NestedScrollView;
 
 import java.util.List;
 
@@ -52,14 +54,15 @@ import java.util.List;
  * @email ls1110924@gmail.com
  * @date 2022/1/14 19:50
  */
-public class ScrollLinearLayout extends LinearLayout implements NestedScrollingParent,
-        NestedScrollingChild2, ScrollingView {
+public class ScrollLinearLayout extends LinearLayout implements NestedScrollingParent3,
+        NestedScrollingChild3, ScrollingView {
 
     private static final int ANIMATED_SCROLL_GAP = 250;
 
     private static final float MAX_SCROLL_FACTOR = 0.5f;
 
     private static final String TAG = ScrollLinearLayout.class.getSimpleName();
+    private static final int DEFAULT_SMOOTH_SCROLL_DURATION = 250;
 
     /**
      * Interface definition for a callback to be invoked when the scroll
@@ -242,7 +245,7 @@ public class ScrollLinearLayout extends LinearLayout implements NestedScrollingP
 
     @Override
     public boolean startNestedScroll(int axes) {
-        return mScrollable && mChildHelper.startNestedScroll(axes);
+        return startNestedScroll(axes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
@@ -252,9 +255,7 @@ public class ScrollLinearLayout extends LinearLayout implements NestedScrollingP
 
     @Override
     public void stopNestedScroll() {
-        if (mScrollable) {
-            mChildHelper.stopNestedScroll();
-        }
+        stopNestedScroll(ViewCompat.TYPE_TOUCH);
     }
 
     @Override
@@ -266,7 +267,7 @@ public class ScrollLinearLayout extends LinearLayout implements NestedScrollingP
 
     @Override
     public boolean hasNestedScrollingParent() {
-        return mScrollable && mChildHelper.hasNestedScrollingParent();
+        return hasNestedScrollingParent(ViewCompat.TYPE_TOUCH);
     }
 
     @Override
@@ -287,8 +288,17 @@ public class ScrollLinearLayout extends LinearLayout implements NestedScrollingP
     }
 
     @Override
+    public void dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
+                                     @Nullable int[] offsetInWindow, int type, @NonNull int[] consumed) {
+        if (mScrollable) {
+            mChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                    offsetInWindow, type, consumed);
+        }
+    }
+
+    @Override
     public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
-        return mScrollable && mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+        return dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
@@ -309,49 +319,90 @@ public class ScrollLinearLayout extends LinearLayout implements NestedScrollingP
     // NestedScrollingParent
 
     @Override
-    public boolean onStartNestedScroll(@NonNull View child, @NonNull View target, int nestedScrollAxes) {
-        return mScrollable && (nestedScrollAxes & getScrollAxes()) != 0;
+    public boolean onStartNestedScroll(@NonNull View child, @NonNull View target, int axes) {
+        return onStartNestedScroll(child, target, axes, ViewCompat.TYPE_TOUCH);
+    }
+
+    @Override
+    public boolean onStartNestedScroll(@NonNull View child, @NonNull View target, int axes, int type) {
+        return mScrollable && (axes & getScrollAxes()) != 0;
     }
 
     @Override
     public void onNestedScrollAccepted(@NonNull View child, @NonNull View target, int nestedScrollAxes) {
+        onNestedScrollAccepted(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
+    }
+
+    @Override
+    public void onNestedScrollAccepted(@NonNull View child, @NonNull View target, int axes, int type) {
         if (mScrollable) {
-            mParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes);
-            startNestedScroll(getScrollAxes());
+            mParentHelper.onNestedScrollAccepted(child, target, axes, type);
+            startNestedScroll(getScrollAxes(), type);
         }
     }
 
     @Override
     public void onStopNestedScroll(@NonNull View target) {
+        onStopNestedScroll(target, ViewCompat.TYPE_TOUCH);
+    }
+
+    @Override
+    public void onStopNestedScroll(@NonNull View target, int type) {
         if (mScrollable) {
-            mParentHelper.onStopNestedScroll(target);
-            stopNestedScroll();
+            mParentHelper.onStopNestedScroll(target, type);
+            stopNestedScroll(type);
         }
     }
 
     @Override
     public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+
+        onNestedScrollInternal(dxUnconsumed, dyUnconsumed, ViewCompat.TYPE_TOUCH, null);
+    }
+
+    @Override
+    public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int type) {
+        onNestedScrollInternal(dxUnconsumed, dyUnconsumed, type, null);
+    }
+
+    @Override
+    public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int type, @NonNull int[] consumed) {
+        onNestedScrollInternal(dxUnconsumed, dyUnconsumed, type, consumed);
+    }
+
+    private void onNestedScrollInternal(int dxUnconsumed, int dyUnconsumed, int type, @Nullable int[] consumed) {
         if (mScrollable) {
             if (getOrientation() == HORIZONTAL) {
                 final int oldScrollX = getScrollX();
                 scrollBy(dxUnconsumed, 0);
                 final int myConsumed = getScrollX() - oldScrollX;
+                if (consumed != null) {
+                    consumed[0] += myConsumed;
+                }
                 final int myUnconsumed = dxUnconsumed - myConsumed;
-                dispatchNestedScroll(myConsumed, 0, myUnconsumed, 0, null);
+                mChildHelper.dispatchNestedScroll(myConsumed, 0, myUnconsumed, 0, null, type, consumed);
             } else {
                 final int oldScrollY = getScrollY();
                 scrollBy(0, dyUnconsumed);
                 final int myConsumed = getScrollY() - oldScrollY;
+                if (consumed != null) {
+                    consumed[1] += myConsumed;
+                }
                 final int myUnconsumed = dyUnconsumed - myConsumed;
-                dispatchNestedScroll(0, myConsumed, 0, myUnconsumed, null);
+                mChildHelper.dispatchNestedScroll(0, myConsumed, 0, myUnconsumed, null, type, consumed);
             }
         }
     }
 
     @Override
     public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
+        onNestedPreScroll(target, dx, dy, consumed, ViewCompat.TYPE_TOUCH);
+    }
+
+    @Override
+    public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed, int type) {
         if (mScrollable) {
-            dispatchNestedPreScroll(dx, dy, consumed, null);
+            dispatchNestedPreScroll(dx, dy, consumed, null, type);
         }
     }
 
@@ -1694,6 +1745,30 @@ public class ScrollLinearLayout extends LinearLayout implements NestedScrollingP
      * @param dy the number of pixels to scroll by on the Y axis
      */
     public final void smoothScrollBy(int dx, int dy) {
+        smoothScrollBy(dx, dy, DEFAULT_SMOOTH_SCROLL_DURATION, false);
+    }
+
+    /**
+     * Like {@link View#scrollBy}, but scroll smoothly instead of immediately.
+     *
+     * @param dx               the number of pixels to scroll by on the X axis
+     * @param dy               the number of pixels to scroll by on the Y axis
+     * @param scrollDurationMs the duration of the smooth scroll operation in milliseconds
+     */
+    public final void smoothScrollBy(int dx, int dy, int scrollDurationMs) {
+        smoothScrollBy(dx, dy, scrollDurationMs, false);
+    }
+
+
+    /**
+     * Like {@link View#scrollBy}, but scroll smoothly instead of immediately.
+     *
+     * @param dx                  the number of pixels to scroll by on the X axis
+     * @param dy                  the number of pixels to scroll by on the Y axis
+     * @param scrollDurationMs    the duration of the smooth scroll operation in milliseconds
+     * @param withNestedScrolling whether to include nested scrolling operations.
+     */
+    private void smoothScrollBy(int dx, int dy, int scrollDurationMs, boolean withNestedScrolling) {
         if (getChildCount() == 0) {
             // Nothing to do.
             return;
@@ -1701,26 +1776,25 @@ public class ScrollLinearLayout extends LinearLayout implements NestedScrollingP
         long duration = AnimationUtils.currentAnimationTimeMillis() - mLastScroll;
         if (duration > ANIMATED_SCROLL_GAP) {
             if (getOrientation() == HORIZONTAL) {
-                final int width = getWidth() - getPaddingRight() - getPaddingLeft();
-                final int right = getChildContentWidth();
-                final int maxX = Math.max(0, right - width);
+                int childrenWidth = getChildContentWidth();
+                int parentWidthSpace = getWidth() - getPaddingRight() - getPaddingLeft();
                 final int scrollX = getScrollX();
+                final int maxX = Math.max(0, childrenWidth - parentWidthSpace);
                 dx = Math.max(0, Math.min(scrollX + dx, maxX)) - scrollX;
-
-                mScroller.startScroll(scrollX, getScrollY(), dx, 0);
+                mScroller.startScroll(scrollX, getScrollY(), dx, 0, scrollDurationMs);
             } else {
-                final int height = getHeight() - getPaddingBottom() - getPaddingTop();
-                final int bottom = getChildContentHeight();
-                final int maxY = Math.max(0, bottom - height);
+                int childrenHeight = getChildContentHeight();
+                int parentHeightSpace = getHeight() - getPaddingTop() - getPaddingBottom();
                 final int scrollY = getScrollY();
+                final int maxY = Math.max(0, childrenHeight - parentHeightSpace);
                 dy = Math.max(0, Math.min(scrollY + dy, maxY)) - scrollY;
-
-                mScroller.startScroll(getScrollX(), scrollY, 0, dy);
+                mScroller.startScroll(getScrollX(), scrollY, 0, dy, scrollDurationMs);
             }
-            ViewCompat.postInvalidateOnAnimation(this);
+
+            runAnimatedScroll(withNestedScrolling);
         } else {
             if (!mScroller.isFinished()) {
-                mScroller.abortAnimation();
+                abortAnimatedScroll();
             }
             scrollBy(dx, dy);
         }
@@ -1734,7 +1808,43 @@ public class ScrollLinearLayout extends LinearLayout implements NestedScrollingP
      * @param y the position where to scroll on the Y axis
      */
     public final void smoothScrollTo(int x, int y) {
-        smoothScrollBy(x - getScrollX(), y - getScrollY());
+        smoothScrollTo(x, y, DEFAULT_SMOOTH_SCROLL_DURATION, false);
+    }
+
+    /**
+     * Like {@link #scrollTo}, but scroll smoothly instead of immediately.
+     *
+     * @param x                the position where to scroll on the X axis
+     * @param y                the position where to scroll on the Y axis
+     * @param scrollDurationMs the duration of the smooth scroll operation in milliseconds
+     */
+    public final void smoothScrollTo(int x, int y, int scrollDurationMs) {
+        smoothScrollTo(x, y, scrollDurationMs, false);
+    }
+
+    /**
+     * Like {@link #scrollTo}, but scroll smoothly instead of immediately.
+     *
+     * @param x                   the position where to scroll on the X axis
+     * @param y                   the position where to scroll on the Y axis
+     * @param withNestedScrolling whether to include nested scrolling operations.
+     */
+    // This should be considered private, it is package private to avoid a synthetic ancestor.
+    void smoothScrollTo(int x, int y, boolean withNestedScrolling) {
+        smoothScrollTo(x, y, DEFAULT_SMOOTH_SCROLL_DURATION, withNestedScrolling);
+    }
+
+    /**
+     * Like {@link #scrollTo}, but scroll smoothly instead of immediately.
+     *
+     * @param x                   the position where to scroll on the X axis
+     * @param y                   the position where to scroll on the Y axis
+     * @param scrollDurationMs    the duration of the smooth scroll operation in milliseconds
+     * @param withNestedScrolling whether to include nested scrolling operations.
+     */
+    // This should be considered private, it is package private to avoid a synthetic ancestor.
+    void smoothScrollTo(int x, int y, int scrollDurationMs, boolean withNestedScrolling) {
+        smoothScrollBy(x - getScrollX(), y - getScrollY(), scrollDurationMs, withNestedScrolling);
     }
 
     /**
@@ -1961,6 +2071,25 @@ public class ScrollLinearLayout extends LinearLayout implements NestedScrollingP
             mLastScrollerX = 0;
             mLastScrollerY = 0;
         }
+    }
+
+    private void runAnimatedScroll(boolean participateInNestedScrolling) {
+        if (participateInNestedScrolling) {
+            startNestedScroll(getScrollAxes(), ViewCompat.TYPE_NON_TOUCH);
+        } else {
+            stopNestedScroll(ViewCompat.TYPE_NON_TOUCH);
+        }
+        if (getOrientation() == HORIZONTAL) {
+            mLastScrollerX = getScrollX();
+        } else {
+            mLastScrollerY = getScrollY();
+        }
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+    private void abortAnimatedScroll() {
+        mScroller.abortAnimation();
+        stopNestedScroll(ViewCompat.TYPE_NON_TOUCH);
     }
 
     /**

@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.yunxian.android.scrolllinearlayout.ScrollLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="8dp"
-    app:scrollable="false"
     tools:context=".MainActivity">
 
-    <TextView
+    <com.yunxian.android.scrolllinearlayout.ScrollLinearLayout
+        android:id="@+id/scroll1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="123456789"
-        android:textColor="@android:color/black"
-        android:textSize="16dp" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        app:scrollable="true" />
 
-</com.yunxian.android.scrolllinearlayout.ScrollLinearLayout>
+    <com.yunxian.android.scrolllinearlayout.ScrollLinearLayout
+        android:id="@+id/scroll2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        app:scrollable="true" />
+
+</LinearLayout>
