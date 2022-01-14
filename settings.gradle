@@ -1,0 +1,2 @@
+rootProject.name = "ScrollLinearLayout"
+include ':app'
