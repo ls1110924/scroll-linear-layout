@@ -1,2 +1,3 @@
 rootProject.name = "ScrollLinearLayout"
 include ':app'
+include ':lib'
