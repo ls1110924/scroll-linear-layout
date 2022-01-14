@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!--  可滚动的线性布局，根据布局方向支持对应方向的滚动  -->
+    <declare-styleable name="ScrollLinearLayout" tools:ignore="ResourceName">
+        <attr name="scrollable" format="boolean" />
+        <attr name="smoothScrollingEnabled" format="boolean" />
+    </declare-styleable>
+
+</resources>
