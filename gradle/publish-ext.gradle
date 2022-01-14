@@ -1,0 +1,43 @@
+/**
+ * 基础值定义
+ * 临时升级属性可以在local.properties中定义
+ */
+
+ext {
+
+    ALIYUN_MAVEN_URL = 'https://packages.aliyun.com/maven/repository/2118004-release-mKUfMD/'
+    ALIYUN_MAVEN_SNAPSHOT_URL = 'https://packages.aliyun.com/maven/repository/2118004-snapshot-4mEf11/'
+
+    PROJECT_GROUP = 'com.yunxian.android.view'
+//    PROJECT_ARTIFACT_ID = ''
+    PROJECT_VERSION = '0.0.1'
+
+//    PROJECT_PACKAGE = ''    // aar 或者 jar
+//    PROJECT_NAME = ''
+//    PROJECT_DESCRIPTION = ''
+
+    PROJECT_WEBSITE = 'https://github.com/ls1110924/scroll-linear-layout'
+    PROJECT_VCS = 'https://github.com/ls1110924/scroll-linear-layout.git'
+    PROJECT_ISSUE_TRACKER = 'https://github.com/ls1110924/scroll-linear-layout/issues'
+
+    DEVELOPER_ID = 'yunxian'
+    DEVELOPER_NAME = 'yunxian'
+    DEVELOPER_EMAIL = 'ls1110924@gmail.com'
+
+    // 阿里云构件仓库账号密码
+    ALIYUN_ACCOUNT = ''
+    ALIYUN_PASSWORD = ''
+
+}
+
+ExtraPropertiesExtension extension = project.extensions.extraProperties
+Properties properties = new Properties()
+File file = project.rootProject.file('local.properties')
+if (file.exists()) {
+    properties.load(file.newDataInputStream())
+    for (String key : properties.keys()) {
+        if (extension.has(key)) {
+            extension.set(key, properties.getProperty(key))
+        }
+    }
+}

@@ -1,0 +1,71 @@
+apply plugin: 'maven-publish'
+
+javadoc {
+    failOnError false
+    options {
+        // 语言
+        locale 'en_US'
+        encoding 'UTF-8'
+        charSet 'UTF-8'
+        links "http://docs.oracle.com/javase/7/docs/api"
+    }
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            // Applies the component for the release build variant.
+            from components.java
+
+            // You can then customize attributes of the publication as shown below.
+            groupId = PROJECT_GROUP
+            artifactId = PROJECT_ARTIFACT_ID
+            version = PROJECT_VERSION
+
+            pom {
+                name = PROJECT_DESCRIPTION
+                description = PROJECT_DESCRIPTION
+                url = PROJECT_WEBSITE
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = DEVELOPER_ID
+                        name = DEVELOPER_NAME
+                        email = DEVELOPER_EMAIL
+                    }
+                }
+                scm {
+                    connection = PROJECT_VCS
+                    developerConnection = PROJECT_VCS
+                    url = PROJECT_WEBSITE
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url PROJECT_VERSION.endsWith('SNAPSHOT') ? ALIYUN_MAVEN_SNAPSHOT_URL : ALIYUN_MAVEN_URL
+            credentials {
+                username ALIYUN_ACCOUNT
+                password ALIYUN_PASSWORD
+            }
+        }
+    }
+}
+
+
