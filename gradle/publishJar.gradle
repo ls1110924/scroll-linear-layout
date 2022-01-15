@@ -31,9 +31,10 @@ publishing {
             version = PROJECT_VERSION
 
             pom {
-                name = PROJECT_DESCRIPTION
+                name = PROJECT_NAME
+                packaging PROJECT_PACKAGE
                 description = PROJECT_DESCRIPTION
-                url = PROJECT_WEBSITE
+                url = PROJECT_URL
 
                 licenses {
                     license {
@@ -49,9 +50,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = PROJECT_VCS
-                    developerConnection = PROJECT_VCS
-                    url = PROJECT_WEBSITE
+                    connection = PROJECT_SCM_CONNECTION
+                    developerConnection = PROJECT_SCM_DEVELOPER
+                    url = PROJECT_SCM_URL
                 }
             }
         }

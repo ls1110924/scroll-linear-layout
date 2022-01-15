@@ -10,8 +10,8 @@ android {
     defaultConfig {
         minSdk project.ext.minSdk
         targetSdk project.ext.targetSdk
-        versionCode 1
-        versionName "1.0.0"
+        versionCode PROJECT_VERSION_CODE
+        versionName PROJECT_VERSION
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -32,4 +32,8 @@ dependencies {
     implementation "androidx.core:core:${androidx_core}"
 }
 
-apply from: rootProject.file('./gradle/publishAar.gradle')
+if (PUBLISH_ALIYUN) {
+    apply from: rootProject.file('./gradle/publishAar.gradle')
+} else {
+    apply from: rootProject.file('./gradle/publishAarToCenter.gradle')
+}

@@ -1,4 +1,5 @@
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 // 生成jar包的task，不需要修改。
 task androidSourcesJar(type: Jar) {
@@ -38,6 +39,8 @@ task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
     from androidJavadocs.destinationDir
 }
 
+
+
 afterEvaluate {
 
     publishing {
@@ -50,7 +53,7 @@ afterEvaluate {
                 artifact androidJavadocsJar
 
                 // You can then customize attributes of the publication as shown below.
-                groupId = PROJECT_GROUP
+                groupId = PROJECT_CENTER_GROUP
                 artifactId = PROJECT_ARTIFACT_ID
                 version = PROJECT_VERSION
 
@@ -84,12 +87,17 @@ afterEvaluate {
 
         repositories {
             maven {
-                url PROJECT_VERSION.endsWith('SNAPSHOT') ? ALIYUN_MAVEN_SNAPSHOT_URL : ALIYUN_MAVEN_URL
+                url PROJECT_VERSION.endsWith('SNAPSHOT') ? SONA_MAVEN_SNAPSHOT_URL : SONA_MAVEN_URL
                 credentials {
-                    username ALIYUN_ACCOUNT
-                    password ALIYUN_PASSWORD
+                    username SONATYPE_ACCOUNT
+                    password SONATYPE_PASSWORD
                 }
             }
         }
     }
+
+    signing {
+        sign publishing.publications.maven
+    }
+
 }

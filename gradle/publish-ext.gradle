@@ -5,20 +5,28 @@
 
 ext {
 
+    // 发布到阿里云
+    PUBLISH_ALIYUN = false
+
     ALIYUN_MAVEN_URL = 'https://packages.aliyun.com/maven/repository/2118004-release-mKUfMD/'
     ALIYUN_MAVEN_SNAPSHOT_URL = 'https://packages.aliyun.com/maven/repository/2118004-snapshot-4mEf11/'
+    SONA_MAVEN_URL = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+    SONA_MAVEN_SNAPSHOT_URL = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
 
     PROJECT_GROUP = 'com.yunxian.android.view'
+    PROJECT_CENTER_GROUP = 'io.github.ls1110924.view'
 //    PROJECT_ARTIFACT_ID = ''
     PROJECT_VERSION = '0.0.1'
+    PROJECT_VERSION_CODE = 1
 
 //    PROJECT_PACKAGE = ''    // aar 或者 jar
 //    PROJECT_NAME = ''
 //    PROJECT_DESCRIPTION = ''
+    PROJECT_URL = 'https://github.com/ls1110924/scroll-linear-layout'
 
-    PROJECT_WEBSITE = 'https://github.com/ls1110924/scroll-linear-layout'
-    PROJECT_VCS = 'https://github.com/ls1110924/scroll-linear-layout.git'
-    PROJECT_ISSUE_TRACKER = 'https://github.com/ls1110924/scroll-linear-layout/issues'
+    PROJECT_SCM_CONNECTION = 'scm:git:git://github.com/ls1110924/scroll-linear-layout.git'
+    PROJECT_SCM_DEVELOPER = 'scm:git:ssh://github.com:ls1110924/scroll-linear-layout.git'
+    PROJECT_SCM_URL = 'http://github.com/ls1110924/scroll-linear-layout/tree/master'
 
     DEVELOPER_ID = 'yunxian'
     DEVELOPER_NAME = 'yunxian'
@@ -27,8 +35,15 @@ ext {
     // 阿里云构件仓库账号密码
     ALIYUN_ACCOUNT = ''
     ALIYUN_PASSWORD = ''
+    SONATYPE_ACCOUNT = ''
+    SONATYPE_PASSWORD = ''
 
 }
+
+// GPG签名密钥
+ext['signing.keyId'] = ''
+ext['signing.password'] = ''
+ext['signing.secretKeyRingFile'] = ''
 
 ExtraPropertiesExtension extension = project.extensions.extraProperties
 Properties properties = new Properties()
